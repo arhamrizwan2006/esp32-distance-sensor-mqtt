@@ -17,11 +17,16 @@ events with global internet infrastructure.
 - Voltage divider (1kΩ + 2kΩ resistors) on the ECHO line, since the
   HC-SR04 outputs 5V and ESP32 GPIOs are only 3.3V tolerant
 
+## Setup Photo
+![ESP32 and HC-SR04 wired setup](images/setup_photo.jpeg)
+
 ## Wiring
 - TRIG → GPIO 5
 - ECHO → GPIO 18 (via voltage divider)
 - VCC → 5V
 - GND → GND
+
+Full wiring details in [docs/wiring_connections.md](docs/wiring_connections.md).
 
 ## How It Works
 1. On boot, the ESP32 blocks execution until Wi-Fi connects successfully,
@@ -42,15 +47,23 @@ MQTT uses a persistent TCP connection with ~2 bytes of fixed header
 overhead per message, versus HTTP's 700–1000+ bytes per request. This
 makes it far more efficient for continuous, low-power telemetry streams.
 
-## Setup
+## Live Dashboard
+![Adafruit IO distance feed graph](images/adafruit_graph.jpeg)
+
+## Setup Instructions
 1. Install the **Adafruit MQTT Library** in Arduino IDE
    (Sketch → Include Library → Manage Libraries → search "Adafruit MQTT Library")
-2. Copy `secrets.h.example` to a new file named `secrets.h`
+2. Copy `secrets.h.example` to a new file named `secrets.h` in the same folder
 3. Fill in your Wi-Fi credentials and Adafruit IO username/key in `secrets.h`
 4. Upload the sketch to your ESP32
 5. Open Serial Monitor at 115200 baud to view live readings
 6. Add a chart block to your `distance` feed on the Adafruit IO dashboard
    to visualize the live stream
+
+## Troubleshooting
+See [docs/troubleshooting.md](docs/troubleshooting.md) for issues
+encountered during development, including Adafruit IO rate limiting and
+reconnect handling.
 
 ## Notes
 - `secrets.h` is intentionally excluded from this repo to keep credentials private.
