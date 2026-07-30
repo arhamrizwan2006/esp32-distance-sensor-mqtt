@@ -1,80 +1,100 @@
-# Cloud-Connected Security Node — IoT Telemetry (ESP32 + MQTT)
+# 📡 ESP32 Distance Sensor with MQTT
 
-## Overview
-This project implements Project 3 of the DecodeLabs IoT Internship: a
-security telemetry node that broadcasts real-time physical boundary data
-from an ESP32 to a centralized cloud dashboard, bridging local sensor
-events with global internet infrastructure.
+> Cloud-connected ultrasonic distance sensor streaming real-time data to Adafruit IO  
+> **Status:** ✅ Complete | **Platform:** ESP32 | **Protocol:** MQTT
 
-## Architecture
-**Input (Physical Boundary):** HC-SR04 ultrasonic sensor
-**Process (Local Edge Engine):** ESP32 microcontroller running Wi-Fi + MQTT logic
-**Output (Global Cloud):** Adafruit IO dashboard
+![Badge](https://img.shields.io/badge/ESP32-Wireless-blue?style=flat-square)
+![Badge](https://img.shields.io/badge/MQTT-Cloud%20Connected-0078D4?style=flat-square)
+![Badge](https://img.shields.io/badge/Adafruit%20IO-Live%20Dashboard-FF6B35?style=flat-square)
 
-## Hardware
-- ESP32 Dev Board
-- HC-SR04 Ultrasonic Sensor
-- Voltage divider (1kΩ + 2kΩ resistors) on the ECHO line, since the
-  HC-SR04 outputs 5V and ESP32 GPIOs are only 3.3V tolerant
+---
 
-## Setup Photo
-![ESP32 and HC-SR04 wired setup](images/setup_photo.jpeg)
+## 🎯 What It Does
 
-## Wiring
-- TRIG → GPIO 5
-- ECHO → GPIO 18 (via voltage divider)
-- VCC → 5V
-- GND → GND
+```
+HC-SR04 Sensor → ESP32 → WiFi → Adafruit IO → Live Graph
+(Measure distance)  (Process) (Connect) (Store) (Visualize)
+```
 
-Full wiring details in [docs/wiring_connections.md](docs/wiring_connections.md).
+Measures distance in real-time and streams data to cloud. Watch live graphs update as objects move closer/farther.
 
-## How It Works
-1. On boot, the ESP32 blocks execution until Wi-Fi connects successfully,
-   preventing the main loop from running without network access.
-2. Every 2 seconds (non-blocking, using `millis()` rather than `delay()`),
-   the ESP32 triggers the HC-SR04 and calculates distance from the echo
-   pulse duration:
-   `distance = (duration / 2) * 0.0343`
-3. The reading is safely formatted into a static character buffer with
-   `dtostrf()` to avoid heap fragmentation from dynamic String objects.
-4. The payload is published via MQTT (publish-subscribe, low overhead)
-   to an Adafruit IO feed at `username/feeds/distance`.
-5. Reconnection logic uses exponential backoff to avoid tripping
-   Adafruit IO's rate limit (60 requests/minute) during network drops.
+---
 
-## Why MQTT over HTTP
-MQTT uses a persistent TCP connection with ~2 bytes of fixed header
-overhead per message, versus HTTP's 700–1000+ bytes per request. This
-makes it far more efficient for continuous, low-power telemetry streams.
+## ⚙️ Components
 
-## Live Dashboard
-![Adafruit IO distance feed graph](images/adafruit_graph.jpeg)
+| Component | Purpose |
+|-----------|---------|
+| **ESP32** | WiFi-enabled microcontroller |
+| **HC-SR04** | Ultrasonic distance sensor |
+| **Adafruit IO** | Cloud data storage & visualization |
 
-## Setup Instructions
-1. Install the **Adafruit MQTT Library** in Arduino IDE
-   (Sketch → Include Library → Manage Libraries → search "Adafruit MQTT Library")
-2. Copy `secrets.h.example` to a new file named `secrets.h` in the same folder
-3. Fill in your Wi-Fi credentials and Adafruit IO username/key in `secrets.h`
-4. Upload the sketch to your ESP32
-5. Open Serial Monitor at 115200 baud to view live readings
-6. Add a chart block to your `distance` feed on the Adafruit IO dashboard
-   to visualize the live stream
+---
 
-## Troubleshooting
-See [docs/troubleshooting.md](docs/troubleshooting.md) for issues
-encountered during development, including Adafruit IO rate limiting and
-reconnect handling.
+## 🚀 Quick Setup
 
-## Notes
-- `secrets.h` is intentionally excluded from this repo to keep credentials private.
-- Adafruit IO enforces a rate limit on reconnect attempts; this sketch
-  handles that with backoff delays to avoid temporary bans.
+1. **Update `secrets.h.example` → `secrets.h`**
+   ```cpp
+   #define WIFI_SSID "YourNetwork"
+   #define WIFI_PASS "YourPassword"
+   #define AIO_USERNAME "your_username"
+   #define AIO_KEY "your_api_key"
+   ```
 
-## Status
-✅ Sensor + voltage divider verified over Serial
-✅ Wi-Fi connection with blocking handshake on boot
-✅ MQTT publish to Adafruit IO confirmed working
-✅ Non-blocking timing and reconnect backoff implemented
+2. **Install libraries:**
+   - Adafruit MQTT Library
+   - PubSubClient
+   - WiFi (built-in)
 
-## Author
-DecodeLabs IoT Internship — Batch 2026
+3. **Upload & monitor** — Open Serial Monitor (115200 baud)
+
+4. **View data** — Log into [Adafruit IO](https://io.adafruit.com/) and watch your feed
+
+---
+
+## 📊 Wiring
+
+**See:** [docs/wiring_connections.md](docs/wiring_connections.md)
+
+| HC-SR04 | ESP32 |
+|---------|-------|
+| VCC | 5V |
+| GND | GND |
+| TRIG | GPIO 5 |
+| ECHO | GPIO 18 |
+
+---
+
+## 🐛 Troubleshooting
+
+**See:** [docs/troubleshooting.md](docs/troubleshooting.md)
+
+| Issue | Fix |
+|-------|-----|
+| No WiFi connection | Check SSID/password in secrets.h |
+| Data not appearing in Adafruit IO | Verify API key & feed name match |
+| Sensor readings inaccurate | Check wiring, ensure 5V supply stable |
+
+---
+
+## 📈 Live Dashboard
+
+View your data at **Adafruit IO:**
+- Real-time distance graph
+- Data history & trends
+- Mobile-friendly dashboard
+
+![Adafruit Graph](images/adafruit_graph.jpeg)
+
+---
+
+## 💡 Key Learnings
+
+✅ ESP32 WiFi connectivity & MQTT protocol  
+✅ Cloud data streaming to Adafruit IO  
+✅ Non-blocking sensor reads  
+✅ Secure credential management  
+
+---
+
+**Repo:** [github.com/arhamrizwan2006/esp32-distance-sensor-mqtt](https://github.com/arhamrizwan2006/esp32-distance-sensor-mqtt)  
+**Part of:** DecodeLabs IoT Internship (Week 3)
